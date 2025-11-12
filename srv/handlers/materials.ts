@@ -145,11 +145,42 @@ export const replaceInstallation = async (req: cds.Request) => {
   //HACK THE FUTURE Challenge:
   //An instellation refers to a product camera that is installed somewhere
   //When an installation is broken, and there are cameras in stock, we should be able to replace the broken installation
-  const { id } = req.data;
-  const installation = await SELECT.from(Installation)
+   const { id } = req.data;
+
+  // Load the installation record
+  const installation = await SELECT.one.from(Installation)
     .columns("product", "status")
     .where({ ID: id });
 
-  const productID = installation[0].product;
+  if (!installation) {
+    return req.error(404, `Installation with ID ${id} not found`);
+  }
 
+  const productID = installation.product;
+
+  // Get the product camera details
+  const camera = await SELECT.one.from(ProductCamera)
+    .columns("amountInStock")
+    .where({ ID: productID });
+
+  if (!camera) {
+    return req.error(404, `ProductCamera with ID ${productID} not found`);
+  }
+
+  // Check if there is stock
+  if (camera.amountInStock > 0) {
+    // Replace the installation status to "Replaced"
+    await UPDATE.entity(Installation)
+      .set({ status: "Replaced" })
+      .where({ ID: id });
+
+    // Decrease the amount of stock by 1
+    await UPDATE.entity(ProductCamera)
+      .set({ amountInStock: camera.amountInStock - 1 })
+      .where({ ID: productID });
+
+    return { message: `Installation ${id} replaced successfully.` };
+  } else {
+    return req.error(400, "No cameras available in stock to replace installation.");
+  }
 };

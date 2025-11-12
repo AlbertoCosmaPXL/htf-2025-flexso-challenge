@@ -112,66 +112,58 @@ export default class Master extends Controller {
     BusyIndicator.show();
     try {
       const viewCtx = this.getView()?.getBindingContext() as Context;
-      if (!viewCtx) {
-        BusyIndicator.hide();
-        return;
-      }
+      if (!viewCtx) return;
 
       const ctxBinding = this.getView()
         ?.getModel()
-        ?.bindContext(
-          `${viewCtx.getPath()}/AdminService.produce(...)`,
-          viewCtx
-        ) as ODataContextBinding;
+        ?.bindContext(`${viewCtx.getPath()}/AdminService.produce(...)`, viewCtx) as ODataContextBinding;
 
-      // Passing the entity ID
-      const id = viewCtx.getProperty("ID");
-      if (id !== undefined) {
-        ctxBinding.setParameter("id", id);
-      }
-
+      // No parameters for produce()
       await ctxBinding.invoke();
+
       this.refresh();
     } finally {
       BusyIndicator.hide();
     }
   }
+
 
   refeshProducton() {
     const processFlow = this.byId("processflow") as ProcessFlow;
     processFlow.updateModel();
   }
 
-   async replaceCamera(event: ui5Event) {
-    const listItem = event.getParameter("listItem" as never) as ListItem;
-    //HACK THE FUTURE Challenge:
-    //Write code to trigger AdminService.replace action on the selected installation
-    //Some backend code will have to be implemented as well!
-    if (!listItem) {
-      return;
-    }
+  async replaceCamera(event: ui5Event) {
+  const listItem = event.getParameter("listItem" as never) as ListItem;
 
-    BusyIndicator.show();
-    try {
-      const ctx = listItem.getBindingContext() as Context;
-      const ctxBinding = this.getView()
-        ?.getModel()
-        ?.bindContext(
-          `${ctx.getPath()}/AdminService.replace(...)`,
-          ctx
-        ) as ODataContextBinding;
+  //HACK THE FUTURE Challenge:
+  //Write code to trigger AdminService.replace action on the selected installation
+  //Some backend code will have to be implemented as well!
+  if (!listItem) return;
 
-      // Passing the entity ID
-      const id = ctx.getProperty("ID");
-      if (id !== undefined) {
-        ctxBinding.setParameter("id", id);
-      }
+  BusyIndicator.show();
+  try {
+    const ctx = listItem.getBindingContext() as Context;
+    const id = ctx.getProperty("ID"); // UUID of the selected Installation
+    if (!id) return;
 
-      await ctxBinding.invoke();
-      this.refresh();
-      this.refeshProducton();
-    } finally {
-      BusyIndicator.hide();
-    }
+    // Using fully-qualified entity set name to avoid relative path issues
+    const actionPath = `/AdminService.Installation('${id}')/AdminService.replace(...)`;
+
+    const actionBinding = this.getView()
+      ?.getModel()
+      ?.bindContext(actionPath) as ODataContextBinding;
+
+    actionBinding.setParameter("id", id);
+
+    await actionBinding.invoke();
+
+    this.refresh();
+    this.refeshProducton();
+  } finally {
+    BusyIndicator.hide();
   }
+}
+
+
 }
