@@ -57,7 +57,7 @@
                             <items>
                                 <ColumnListItem vAlign="Middle" type="Inactive">
                                     <cells>
-                                        <ObjectIdentifier title="{name}" text="{ID}" />
+                                        <ObjectIdentifier title="{name}" />
                                         <ObjectNumber number="{amountInStock}" state="Success" />
                                         <Text text="{ID}" />
                                     </cells>
