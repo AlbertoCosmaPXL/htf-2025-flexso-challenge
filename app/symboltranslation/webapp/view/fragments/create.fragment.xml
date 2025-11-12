@@ -16,7 +16,11 @@
                         <Input value="{create>/symbol}" required="true"/>
 
                         <Label text="Where abouts" required="true"/>
-                        <Input value="{create>/whereFound}" required="true"/>
+                        <ComboBox
+                            selectedKey="{create>/whereFound}"
+                            items="{locations>/}">
+                            <core:Item key="{locations>name}" text="{locations>name}" />
+                        </ComboBox>
 
                         <Label text="Language" required="true"/>
                         <ComboBox

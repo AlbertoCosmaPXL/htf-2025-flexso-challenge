@@ -24,6 +24,35 @@ export default class Master extends Controller {
     this.table = this.byId("idProductsTable") as Table;
   }
 
+/**
+ * Loads available subnautic locations and sets them as a JSON model for the ComboBox.
+ */
+  private async _loadLocations(): Promise<void> {
+    const oDataModel = this.getView()?.getModel() as ODataModel;
+    if (!oDataModel) return;
+
+    try {
+      // Create a list binding to /SubnauticLocation
+      const listBinding = oDataModel.bindList("/SubnauticLocation");
+      const contexts = await listBinding.requestContexts();
+      const locations = contexts.map((ctx) => ctx.getObject());
+
+      // Map only what we need
+      const formatted = locations.map((loc: any) => ({
+        id: loc.ID,
+        name: loc.name
+      }));
+
+      const locationModel = new JSONModel(formatted);
+      this.getView()?.setModel(locationModel, "locations");
+      console.log("✅ Loaded locations:", formatted);
+    } catch (err) {
+      console.error("❌ Failed to load locations:", err);
+      MessageToast.show("Error loading subnautic locations.");
+    }
+  }
+
+
   /**
    * Loads unique languages from /Languages (preferred) or /SymbolTranslations (fallback)
    * and sets them as a JSON model for the ComboBox in the creation dialog.
@@ -72,8 +101,9 @@ export default class Master extends Controller {
       this.getView()?.addDependent(this.creationDialog);
     }
 
-    // ✅ Load available unique languages before opening dialog
+    // Load available unique languages before opening dialog
     await this._loadLanguages();
+    await this._loadLocations();
 
     this.creationDialog.setModel(createModel, "create");
 
