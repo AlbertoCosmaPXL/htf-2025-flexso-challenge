@@ -8,7 +8,8 @@ export const translate = async (req: cds.Request) => {
     //The Symbol Translation entity contains all translation mapping
     //Don't forget that we should be able to translate whole strings, not only singluar symbols
 
-    // Normalize the bound key: { ID } / { id } 
+    // Normalize the bound key: { ID } / { id }
+    const key = id;
 
     // Read the symbol row that will be translated
     const sym = await SELECT.one.from(Symbol).columns("ID", "symbol", "language").where({ ID: key });
@@ -41,7 +42,7 @@ export const translate = async (req: cds.Request) => {
       if (translated === sym.symbol) translated = `[${sym.language}] ${sym.symbol}`;
     }
 
-    // Translation back on Symbol
+    // Persist translation back on Symbol
     await UPDATE(Symbol).set({ translation: translated }).where({ ID: sym.ID });
 
 
