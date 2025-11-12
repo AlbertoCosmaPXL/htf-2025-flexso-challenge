@@ -9,6 +9,8 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import Context from "sap/ui/model/odata/v4/Context";
 import ODataContextBinding from "sap/ui/model/odata/v4/ODataContextBinding";
 import ODataListBinding from "sap/ui/model/odata/v4/ODataListBinding";
+import ODataModel from "sap/ui/model/odata/v4/ODataModel";
+import MessageToast from "sap/m/MessageToast";
 
 /**
  * @namespace flexso.cap.htf.symboltranslation.controller
@@ -16,10 +18,43 @@ import ODataListBinding from "sap/ui/model/odata/v4/ODataListBinding";
 export default class Master extends Controller {
   creationDialog: Dialog;
   table: Table;
+
   /*eslint-disable @typescript-eslint/no-empty-function*/
   public onInit(): void {
     this.table = this.byId("idProductsTable") as Table;
   }
+
+  /**
+   * Loads unique languages from /Languages (preferred) or /SymbolTranslations (fallback)
+   * and sets them as a JSON model for the ComboBox in the creation dialog.
+   */
+  private async _loadLanguages(): Promise<void> {
+    const oDataModel = this.getView()?.getModel() as ODataModel;
+    if (!oDataModel) return;
+
+    try {
+      // Create a list binding to /Languages
+      const listBinding = oDataModel.bindList("/Languages");
+
+      // Execute the read
+      const contexts = await listBinding.requestContexts();
+      const langs = contexts.map((ctx) => ctx.getObject());
+
+      // Build unique list of languages
+      const uniqueLangs = [...new Set(langs.map((r: any) => r.language))].map(
+        (lang) => ({ language: lang })
+      );
+
+      const languageModel = new JSONModel(uniqueLangs);
+      this.getView()?.setModel(languageModel, "languages");
+      console.log("✅ Loaded unique languages:", uniqueLangs);
+
+    } catch (err) {
+      console.error("❌ Failed to load languages:", err);
+      MessageToast.show("Error loading available languages.");
+    }
+  }
+
 
   async addIcon() {
     const createModel = new JSONModel({
@@ -36,6 +71,9 @@ export default class Master extends Controller {
 
       this.getView()?.addDependent(this.creationDialog);
     }
+
+    // ✅ Load available unique languages before opening dialog
+    await this._loadLanguages();
 
     this.creationDialog.setModel(createModel, "create");
 

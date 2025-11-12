@@ -19,7 +19,11 @@
                         <Input value="{create>/whereFound}" required="true"/>
 
                         <Label text="Language" required="true"/>
-                        <Input value="{create>/language}" required="true"/>
+                        <ComboBox
+                            selectedKey="{create>/language}"
+                            items="{languages>/}">
+                            <core:Item key="{languages>language}" text="{languages>language}" />
+                        </ComboBox>
                     </f:content>
                 </f:SimpleForm>
             </VBox>
