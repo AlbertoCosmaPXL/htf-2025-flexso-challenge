@@ -20,9 +20,6 @@
 
                         <Label text="Language" required="true"/>
                         <Input value="{create>/language}" required="true"/>
-
-                        <Label text="Translation" required="true"/>
-                        <Input value="{create>/translation}" required="true"/>
                     </f:content>
                 </f:SimpleForm>
             </VBox>
