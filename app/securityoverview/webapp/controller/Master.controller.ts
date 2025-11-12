@@ -22,6 +22,9 @@ export default class Master extends Controller {
     this.appViewModel = new JSONModel({
       hasSelectedLocation: false
     });
+
+    // Making the view model available to the view
+    this.getView()?.setModel(this.appViewModel, "app");
   }
 
   private onRouteMatched(event: Route$MatchedEvent): void {
@@ -30,11 +33,27 @@ export default class Master extends Controller {
     //That way we will discovered what is happening at that location and possibly solve the mystery
     let cameraImageGuid = "";
 
-    if (event.getParameter("name") === "masterWithSelection") {
-      this.appViewModel.setProperty("/hasSelectedLocation", true);
-      this.getView()?.bindElement(
-        { path: `/CameraImages(${cameraImageGuid})` }
-      )
+    const routeName = event.getParameter("name");
+    if (routeName === "master") {
+      this.appViewModel.setProperty("/hasSelectedLocation", false);
+      this.getView()?.unbindElement("");
+      return;
+    }
+
+    if (routeName === "masterWithSelection") {
+      const args = (event.getParameter("arguments") as any) || {};
+      cameraImageGuid = args.id || "";
+
+      this.appViewModel.setProperty("/hasSelectedLocation", !!cameraImageGuid);
+
+      if (!cameraImageGuid) return;
+
+      // Binding to the specific CameraImage entity
+      const keySegment = cameraImageGuid.startsWith("guid'")
+        ? `(${cameraImageGuid})`
+        : `(guid'${cameraImageGuid}')`;
+
+      this.getView()?.bindElement({ path: `/CameraImages${keySegment}` });
     }
   }
 
@@ -44,10 +63,30 @@ export default class Master extends Controller {
     //The camera image GUID is different than the location guid, maybe you can write some code to get the correct one?
     let cameraImageGuid = "";
 
+    const listItemOrSource: any =
+      (oEvent as any).getParameter?.("listItem") ?? oEvent.getSource?.();
+
+    const ctx = listItemOrSource?.getBindingContext?.();
+    if (ctx) {
+      cameraImageGuid =
+        ctx.getProperty("cameraImage_ID") ??
+        ctx.getProperty("cameraImageId") ??
+        ctx.getProperty("CameraImage_ID") ??
+        ctx.getProperty("CameraImageId") ??
+        "";
+
+      // Fallback: if the navigation object is expanded
+      if (!cameraImageGuid) {
+        const nav = ctx.getProperty("cameraImage") ?? ctx.getProperty("CameraImage");
+        if (nav?.ID) cameraImageGuid = nav.ID;
+      }
+    }
+
+    if (!cameraImageGuid) return;
+
     const router = (this.getOwnerComponent() as UIComponent).getRouter();
     router.navTo("masterWithSelection", {
       id: cameraImageGuid
     });
   }
-
 }

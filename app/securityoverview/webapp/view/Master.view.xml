@@ -45,6 +45,7 @@
         </headerContent>
 
         <sections>
+            <!-- Empty state when nothing selected -->
             <ObjectPageSection showTitle="false" visible="{= !${appView>/hasSelectedLocation} }">
                 <subSections>
                     <ObjectPageSubSection class="sapUxAPObjectPageSubSectionFitContainer">
@@ -55,13 +56,95 @@
                     </ObjectPageSubSection>
                 </subSections>
             </ObjectPageSection>
+
+            <!-- Selected state -->
             <ObjectPageSection showTitle="false" visible="{appView>/hasSelectedLocation}">
                 <subSections>
                     <ObjectPageSubSection class="sapUxAPObjectPageSubSectionFitContainer">
+                        <m:VBox class="sapUiLargeMargin sapUiResponsiveContentPadding" width="100%">
+                            <!-- Header toolbar for actions/context -->
+                            <m:Toolbar>
+                                <m:Title text="Camera Image Details" level="H5"/>
+                                <m:ToolbarSpacer/>
+                                <!-- Optional refresh if the controller provides one -->
+                                <m:Button icon="sap-icon://synchronize" type="Transparent" press="onRefreshImage"/>
+                            </m:Toolbar>
 
+                            <!-- Core details: image + facts -->
+                            <m:HBox renderType="Bare" wrap="Wrap" class="sapUiSmallMarginTop" width="100%">
+                                <m:Image
+                                    width="360px"
+                                    densityAware="false"
+                                    class="sapUiSmallMarginEnd sapUiTinyMarginBottom"
+                                    src="{imageUrl}" />
+                                <m:VBox class="sapUiSmallMarginBegin" width="auto">
+                                    <m:ObjectHeader
+                                        title="{title}"
+                                        number="{confidence}"
+                                        numberUnit="confidence"
+                                        responsive="true">
+                                        <m:attributes>
+                                            <m:ObjectAttribute title="Location" text="{locationName}"/>
+                                            <m:ObjectAttribute title="Captured at" text="{createdAt}"/>
+                                            <m:ObjectAttribute title="Camera" text="{cameraName}"/>
+                                        </m:attributes>
+                                        <m:statuses>
+                                            <m:ObjectStatus title="Status" text="{status}" state="Success"/>
+                                            <m:ObjectStatus title="Threat Level" text="{threatLevel}" state="Warning"/>
+                                        </m:statuses>
+                                    </m:ObjectHeader>
+                                </m:VBox>
+                            </m:HBox>
+
+                            <!-- Detections table -->
+                            <m:Toolbar class="sapUiMediumMarginTop">
+                                <m:Title text="Detections" level="H6"/>
+                                <m:ToolbarSpacer/>
+                                <m:SearchField width="18rem" liveChange="onFilterDetections"/>
+                            </m:Toolbar>
+
+                            <m:Table id="idDetectionsTable"
+                                     inset="false"
+                                     growing="true"
+                                     sticky="ColumnHeaders"
+                                     items="{
+                                        path: 'detections'
+                                     }">
+                                <m:columns>
+                                    <m:Column><m:Text text="Label"/></m:Column>
+                                    <m:Column hAlign="End" width="8rem"><m:Text text="Confidence"/></m:Column>
+                                    <m:Column width="14rem"><m:Text text="Time"/></m:Column>
+                                </m:columns>
+                                <m:items>
+                                    <m:ColumnListItem>
+                                        <m:cells>
+                                            <m:ObjectIdentifier title="{label}" text="{id}"/>
+                                            <m:ObjectNumber number="{confidence}" unit="%"/>
+                                            <m:Text text="{time}"/>
+                                        </m:cells>
+                                    </m:ColumnListItem>
+                                </m:items>
+                            </m:Table>
+
+                            // Recent events / notes  -->
+                            <m:Toolbar class="sapUiMediumMarginTop">
+                                <m:Title text="Recent Events" level="H6"/>
+                            </m:Toolbar>
+                            <m:List
+                                id="idRecentEvents"
+                                items="{
+                                    path: 'events'
+                                }">
+                                <m:StandardListItem
+                                    title="{eventType}"
+                                    description="{eventTime}"
+                                    info="{severity}"
+                                    infoState="Information"
+                                />
+                            </m:List>
+                        </m:VBox>
                     </ObjectPageSubSection>
                 </subSections>
-
             </ObjectPageSection>
         </sections>
 

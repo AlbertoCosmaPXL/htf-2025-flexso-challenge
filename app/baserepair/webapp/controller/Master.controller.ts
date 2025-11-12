@@ -109,6 +109,32 @@ export default class Master extends Controller {
     //HACK THE FUTURE Challenge:
     //Write code to trigger AdminService.produce action 
     //You can base yourself on existing action code from the symboltranslation app
+    BusyIndicator.show();
+    try {
+      const viewCtx = this.getView()?.getBindingContext() as Context;
+      if (!viewCtx) {
+        BusyIndicator.hide();
+        return;
+      }
+
+      const ctxBinding = this.getView()
+        ?.getModel()
+        ?.bindContext(
+          `${viewCtx.getPath()}/AdminService.produce(...)`,
+          viewCtx
+        ) as ODataContextBinding;
+
+      // Passing the entity ID
+      const id = viewCtx.getProperty("ID");
+      if (id !== undefined) {
+        ctxBinding.setParameter("id", id);
+      }
+
+      await ctxBinding.invoke();
+      this.refresh();
+    } finally {
+      BusyIndicator.hide();
+    }
   }
 
   refeshProducton() {
@@ -116,10 +142,36 @@ export default class Master extends Controller {
     processFlow.updateModel();
   }
 
-  async replaceCamera(event: ui5Event) {
+   async replaceCamera(event: ui5Event) {
     const listItem = event.getParameter("listItem" as never) as ListItem;
     //HACK THE FUTURE Challenge:
     //Write code to trigger AdminService.replace action on the selected installation
     //Some backend code will have to be implemented as well!
+    if (!listItem) {
+      return;
+    }
+
+    BusyIndicator.show();
+    try {
+      const ctx = listItem.getBindingContext() as Context;
+      const ctxBinding = this.getView()
+        ?.getModel()
+        ?.bindContext(
+          `${ctx.getPath()}/AdminService.replace(...)`,
+          ctx
+        ) as ODataContextBinding;
+
+      // Passing the entity ID
+      const id = ctx.getProperty("ID");
+      if (id !== undefined) {
+        ctxBinding.setParameter("id", id);
+      }
+
+      await ctxBinding.invoke();
+      this.refresh();
+      this.refeshProducton();
+    } finally {
+      BusyIndicator.hide();
+    }
   }
 }
