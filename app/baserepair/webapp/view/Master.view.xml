@@ -11,14 +11,17 @@
             <ObjectHeader id="_IDGenObjectHeader" title="{name}" backgroundDesign="Solid">
                 <attributes>
                     <ObjectAttribute id="_IDGenObjectAttribute1" title="Weight" text="{weight}" />
-                    <ObjectAttribute id="_IDGenObjectAttribute2" title="Dimensions" text="{dimensions}" />
+                    <ObjectAttribute id="_IDGenObjectAttribute2" title="Dimensions"
+                        text="{dimensions}" />
                     <ObjectAttribute id="_IDGenObjectAttribute" title="Color" text="{color}" />
                 </attributes>
                 <statuses>
-                    <ObjectStatus id="_IDGenObjectStatus" title="Amount in Stock" text="{amountInStock}" state="Success" />
+                    <ObjectStatus id="_IDGenObjectStatus" title="Amount in Stock"
+                        text="{amountInStock}" state="Success" />
                 </statuses>
             </ObjectHeader>
-            <IconTabBar id="_IDGenIconTabBar" expanded="true" class="sapUiSmallMarginBottom sapUiResponsiveContentPadding">
+            <IconTabBar id="_IDGenIconTabBar" expanded="true"
+                class="sapUiSmallMarginBottom sapUiResponsiveContentPadding">
                 <items>
                     <IconTabFilter id="_IDGenIconTabFilter" key="Parts" text="Parts">
                         <!-- HACK THE FUTURE Challenge: Here we should have an overview of materials -->
@@ -26,35 +29,37 @@
                         <!-- It should be possible to perform the actions 'order' and 'refresh' on them-->
 
                         <Toolbar>
-                            <Title text="Materials" level="H5"/>
-                            <ToolbarSpacer/>
-                            <Button id="_IDGenButtonOrder" text="Order" type="Emphasized" press="order"/>
-                            <Button id="_IDGenButtonRefresh" icon="sap-icon://synchronize" type="Transparent" press="refresh"/>
+                            <Title text="Materials" level="H5" />
+                            <ToolbarSpacer />
+                            <Button id="_IDGenButtonOrder" text="Order" type="Emphasized"
+                                press="order" />
+                            <Button id="_IDGenButtonRefresh" icon="sap-icon://synchronize"
+                                type="Transparent" press="refresh" />
                         </Toolbar>
 
                         <Table id="idMaterialTable"
-                               mode="MultiSelect"
-                               growing="true"
-                               inset="false"
-                               sticky="ColumnHeaders"
-                               items="{path: 'materials'}">
+                            mode="MultiSelect"
+                            growing="true"
+                            inset="false"
+                            sticky="ColumnHeaders"
+                            items="{path: 'materials'}">
                             <columns>
                                 <Column width="12rem">
-                                    <Text text="Name"/>
+                                    <Text text="Name" />
                                 </Column>
                                 <Column width="10rem" hAlign="End">
-                                    <Text text="Amount in Stock"/>
+                                    <Text text="Amount in Stock" />
                                 </Column>
                                 <Column width="14rem">
-                                    <Text text="Material ID"/>
+                                    <Text text="Material ID" />
                                 </Column>
                             </columns>
                             <items>
-                                <ColumnListItem vAlign="Middle" type="Inactive" selected="false">
+                                <ColumnListItem vAlign="Middle" type="Inactive">
                                     <cells>
-                                        <ObjectIdentifier title="{name}" text="{ID}"/>
-                                        <ObjectNumber number="{amountInStock}" state="Success"/>
-                                        <Text text="{ID}"/>
+                                        <ObjectIdentifier title="{name}" text="{ID}" />
+                                        <ObjectNumber number="{amountInStock}" state="Success" />
+                                        <Text text="{ID}" />
                                     </cells>
                                 </ColumnListItem>
                             </items>
@@ -63,8 +68,10 @@
 
                     <IconTabFilter id="_IDGenIconTabFilter1" key="Production" text="Production">
                         <Button id="_IDGenButton" text="Produce {name}" press="produce"></Button>
-                        <Button id="_IDGenButton5" icon="sap-icon://synchronize" type="Transparent" press="refeshProducton"></Button>
-                        <m:ProcessFlow id="processflow" scrollable="true" lanes="{
+                        <Button id="_IDGenButton5" icon="sap-icon://synchronize" type="Transparent"
+                            press="refeshProducton"></Button>
+                        <m:ProcessFlow id="processflow" scrollable="true"
+                            lanes="{
 							path: '/Production',
 							parameters: {
 								$expand: {
@@ -74,28 +81,32 @@
 							}
 						}">
                             <m:lanes>
-                                <m:ProcessFlowLaneHeader id="_IDGenProcessFlowLaneHeader" laneId="{ID}" iconSrc="{icon}" text="{label}" position="{position}" state="{path: 'state', formatter:'.formatter.stateFormatter', targetType:'any'}" />
+                                <m:ProcessFlowLaneHeader id="_IDGenProcessFlowLaneHeader"
+                                    laneId="{ID}" iconSrc="{icon}" text="{label}"
+                                    position="{position}"
+                                    state="{path: 'state', formatter:'.formatter.stateFormatter', targetType:'any'}" />
                             </m:lanes>
                         </m:ProcessFlow>
                     </IconTabFilter>
 
-                    <IconTabFilter id="_IDGenIconTabFilter2" key="Installations" text="Installations">
-                        <!-- HACK THE FUTURE Challenge: Here we should have an overview of all installations of this product -->
-                        <!-- It should be possible to execute the function replaceCamera on an entry-->
+                    <IconTabFilter id="_IDGenIconTabFilter2" key="Installations"
+                        text="Installations">
+                        <!-- HACK THE FUTURE Challenge: Here we should have an overview of all
+                        installations of this product -->
+                        <!-- It should be possible to execute the function replaceCamera on an
+                        entry-->
 
                         <List id="idInstallations"
-                              mode="SingleSelectMaster"
-                              includeItemInSelection="true"
-                              itemPress="replaceCamera"
-                              growing="true">
-                            <items>
-                                <StandardListItem type="Active"
-                                                  title="{installationName}"
-                                                  description="{serialNumber}"
-                                                  info="{status}"
-                                                  infoState="Success"
-                                                  binding="{path: 'installations'}"/>
-                            </items>
+                            mode="SingleSelectMaster"
+                            includeItemInSelection="true"
+                            itemPress="replaceCamera"
+                            growing="true"
+                            items="{path: 'installations'}">
+                            <StandardListItem type="Active"
+                                title="{location}"
+                                description="{image}"
+                                info="{status}"
+                                infoState="{= ${status} === 'Replaced' ? 'Success' : 'Error'}" />
                         </List>
                     </IconTabFilter>
                 </items>
